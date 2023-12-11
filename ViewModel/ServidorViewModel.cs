@@ -2,7 +2,7 @@
 {
     public class ServidorViewModel
     {
-        public Guid Id { get; set; }
+        public Guid ID { get; set; }
 
         public string Nome { get; set; }
 

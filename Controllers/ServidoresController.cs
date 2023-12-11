@@ -79,6 +79,50 @@ namespace VideoMonitoramento.APIRest.Controllers
             }
         }
 
+        [HttpGet("Disponibilidade/{id:Guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<Servidor>> GetStatusDisponibilidade(Guid id)
+        {
+            try
+            {
+                var servidor = await _servidorRepository.GetServidor(id);
+
+                if (servidor == null)
+                    return NotFound($"Não existe servidor com o ID: {id}");
+
+                return Ok($"O servidor {servidor.Nome} está {servidor.Status}");
+
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao retornar servidor");
+            }
+        }
+
+        [HttpGet("{enderecoIP}/{portaIP:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<Servidor>> GetServidoresPorEnderecoEPortaIP(string enderecoIP, int portaIP)
+        {
+            try
+            {
+                var servidor = await _servidorRepository.GetServidoresPorEnderecoEPortaIP(enderecoIP, portaIP);
+
+                if (servidor == null)
+                    return NotFound("Servidor não encontrado.");
+
+                return Ok($"Servidor {servidor.Nome} encontrado pelo ip {enderecoIP} e porta {portaIP}.");
+
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao retornar servidor");
+            }
+        }
+
         [HttpPost("Servidor")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -109,12 +153,20 @@ namespace VideoMonitoramento.APIRest.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult> Update(Guid id, [FromBody] Servidor servidor)
+        public async Task<ActionResult> Update(Guid id, [FromBody] ServidorViewModel servidorViewModel)
         {
             try
             {
+                var servidor = new Servidor
+                {
+                    ID = servidorViewModel.ID,
+                    Nome = servidorViewModel.Nome,
+                    EnderecoIP = servidorViewModel.EnderecoIP,
+                    PortaIP = servidorViewModel.PortaIP,
+                    Status = servidorViewModel.Status,
+                };
 
-                if(servidor.ID == id)
+                if (servidor.ID == id)
                 {
                     await _servidorRepository.UpdateServidor(servidor);
                     return Ok($"Servidor com o nome = {servidor.Nome} foi atualizado com sucesso");
@@ -122,6 +174,65 @@ namespace VideoMonitoramento.APIRest.Controllers
                 else
                 {
                     return NotFound($"Servidor {servidor.Nome} não encontrado");
+
+                }
+
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao atualizar servidor");
+            }
+        }
+        [HttpPut("Desligar/{id:Guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> DesligaServidor(Guid id)
+        {
+            try
+            {
+                var servidor = await _servidorRepository.GetServidor(id);
+
+                if (servidor != null)
+                {
+                    servidor.Status = "Desligado";
+                    await _servidorRepository.UpdateServidor(servidor);
+                    return Ok($"Servidor {servidor.Nome} foi Desligado com sucesso.");
+                }
+                else
+                {
+                    return NotFound($"Servidor não encontrado");
+
+                }
+
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao atualizar servidor");
+            }
+        }
+
+        [HttpPut("Ligar/{id:Guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> LigaServidor(Guid id)
+        {
+            try
+            {
+                var servidor = await _servidorRepository.GetServidor(id);
+
+                if (servidor != null)
+                {
+                    servidor.Status = "Ligado";
+                    await _servidorRepository.UpdateServidor(servidor);
+                    return Ok($"Servidor {servidor.Nome} foi Ligado com sucesso.");
+                }
+                else
+                {
+                    return NotFound($"Servidor não encontrado");
 
                 }
 
@@ -142,7 +253,7 @@ namespace VideoMonitoramento.APIRest.Controllers
                 if (servidor != null)
                 {
                     await _servidorRepository.DeleteServidor(servidor);
-                    return Ok($"Servidor {servidor.Nome} foi excluído com sucesso");
+                    return Ok($"Servidor {servidor.Nome} foi excluído lógicamente com sucesso");
                 }
                 else
                 {

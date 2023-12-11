@@ -65,6 +65,22 @@ namespace VideoMonitoramento.APIRest.Services
             }
         }
 
+        public async Task<Servidor> GetServidoresPorEnderecoEPortaIP(string enderecoIP, int portaIP)
+        {
+            try
+            {
+                var servidor = await _context.Servidores.Where(i => i.EnderecoIP == enderecoIP 
+                && i.PortaIP == portaIP 
+                && i.RemovidoEm == null).FirstOrDefaultAsync();
+
+                return servidor;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Ocorreu um erro ao buscar o servidor.", ex);
+            }
+
+        }
         public async Task CreateServidor(Servidor servidor)
         {
             try
@@ -97,6 +113,8 @@ namespace VideoMonitoramento.APIRest.Services
             try
             {
                 servidor.RemovidoEm = DateTime.Now;
+                servidor.Status = "Desligado";
+
                 _context.Entry(servidor).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
             }
