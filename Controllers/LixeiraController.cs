@@ -108,7 +108,7 @@ namespace VideoMonitoramento.APIRest.Controllers
                     }
                 }
 
-                return Ok($"Os vídeos marcados como excluídos há {dias} dias foram restaurados.");
+                return Ok($"Os vídeos excluídos há {dias} dias a partir do dia de hoje foram restaurados.");
             }
             catch
             {

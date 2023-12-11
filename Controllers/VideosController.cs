@@ -49,7 +49,7 @@ namespace VideoMonitoramento.APIRest.Controllers
         {
             try
             {
-                var video = await _videoRepository.GetVideo(id, servidorID);
+                var video = await _videoRepository.GetVideo(servidorID, id);
 
                 if (video == null)
                     return NotFound($"Não existe vídeo com o ID: {id}");

@@ -18,7 +18,7 @@ namespace VideoMonitoramento.APIRest.Services
         {
             try
             {
-                return await _context.Videos.ToListAsync();
+                return await _context.Videos.Where(v => v.ServidorID == servidorID && v.RemovidoEm == null).ToListAsync();
             }
             catch (Exception ex)
             {
